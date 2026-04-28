@@ -1,0 +1,23 @@
+repo: "/Users/mugesh/Pyramid revised /"
+rules: "/Users/mugesh/Pyramid revised /.sentinel/pyramid.yaml"
+
+cases:
+  - id: penny-stocks-in-movers
+    fix_commit: df9d77a
+    note: 'fix(overview): sort movers by marketCap'
+    expected_rules:
+      - unfiltered-market-data
+      - manual-symbol-conversion
+
+  - id: research-tile-global-feed
+    fix_commit: "79045e7"
+    note: 'fix(research): tile + drawer use same filtered API'
+    expected_rules:
+      - incomplete-api-params
+      - tile-drawer-data-source
+
+  - id: yahoo-removal-dead-refs
+    fix_commit: "15b2e04"
+    note: 'refactor(data): remove Yahoo Finance + legacy providers'
+    expected_rules:
+      - dead-endpoint-references

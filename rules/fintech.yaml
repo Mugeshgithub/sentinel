@@ -1,0 +1,67 @@
+domain: fintech
+description: Generic review rules for financial / investment SaaS products.
+
+rules:
+  - id: client-side-secret
+    severity: BLOCKER
+    when: |
+      A file marked 'use client' (or any client-side bundle) references
+      a secret like API_KEY, JWT_SECRET, DB_URL via process.env.
+    why: |
+      Client-side env vars get bundled into the browser. Anyone can extract them.
+      Fintech leaks = account takeover, data theft, vendor billing fraud.
+
+  - id: missing-auth-on-api-route
+    severity: BLOCKER
+    when: |
+      A new file under app/api/** or pages/api/** does not check authentication
+      (no JWT verify, no session check, no middleware).
+    why: |
+      Unauth API routes leak user portfolios, watchlists, PII.
+
+  - id: float-money-math
+    severity: RISKY
+    when: |
+      Code does arithmetic on prices, balances, P&L using JS Number / floats
+      without a precision library (decimal.js, bignumber.js) or fixed-point logic.
+    why: |
+      0.1 + 0.2 !== 0.3 in JS. Wrong totals shown to investors.
+
+  - id: stale-market-data
+    severity: RISKY
+    when: |
+      Market data (price, quote, chart) is rendered without a visible
+      'last updated' timestamp or staleness indicator.
+    why: |
+      Legally and ethically dangerous: users may trade on stale data.
+
+  - id: missing-rate-limit-handling
+    severity: RISKY
+    when: |
+      A new external market-data API call has no try/catch, no retry/backoff,
+      no fallback for 429 / 5xx responses.
+    why: |
+      Vendor throttles cause cascading failures + bad UX during volatility.
+
+  - id: pii-in-logs
+    severity: BLOCKER
+    when: |
+      console.log / logger calls include emails, JWTs, full names, portfolio
+      holdings, or trade amounts.
+    why: |
+      GDPR / SOC2 violation. Logs end up in third-party systems.
+
+  - id: currency-without-locale
+    severity: NIT
+    when: |
+      Numbers shown to users without currency symbol or locale-aware formatting.
+    why: |
+      Multi-country product needs Intl.NumberFormat for trust.
+
+  - id: chart-time-format
+    severity: NIT
+    when: |
+      Lightweight Charts / ECharts series added without explicit time format
+      handling, or mixing UTC and local time.
+    why: |
+      Common source of off-by-day bugs in candle charts.
