@@ -113,7 +113,7 @@ def assert_pre_eval_safe(repo: str, rules_path: str) -> None:
 
     if bad:
         print(
-            "Pyramid working tree must be clean before eval.\n"
+            "Target working tree must be clean before eval.\n"
             "Tracked or staged changes:\n"
             + "\n".join(bad),
             file=sys.stderr,

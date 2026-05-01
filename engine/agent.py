@@ -40,7 +40,7 @@ You have access to these tools (call ONE per turn):
 - check_types(repo_path)
 - scan_for_secrets(diff)
 - list_api_routes(repo_path) — list existing /api/* routes from app/api/**/route.ts or route.js
-- find_helper_usage(repo_path, helper_name) — grep for usages of a helper (e.g. fmpFetch, toFmpSymbol)
+- find_helper_usage(repo_path, helper_name) — grep for usages of a helper (e.g. apiFetch, toSymbol)
 
 Respond with ONLY JSON, one of these two shapes:
   {{"tool": "<name>", "args": {{...}}}}
@@ -103,7 +103,7 @@ def run_agent(
     diff_override: str | None = None,
 ) -> list[dict]:
     use_vertex = os.environ.get("SENTINEL_USE_VERTEX", "").lower() == "true"
-    project = os.environ.get("GOOGLE_CLOUD_PROJECT", "pyramid-investment")
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT", "your-gcp-project")
     location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
 
     if use_vertex:

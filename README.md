@@ -32,12 +32,14 @@ You: git commit -m "fix movers sort"
 Sentinel: list_changed_files → get_diff → read_file → search_codebase → done
 
 🔴 BLOCKER TopMoversWidget.tsx:52
-Manual .replace('-USD','') detected. Use toFmpSymbol() to avoid
-$0 price bugs caused by vendor symbol format mismatches.
+Manual .replace('-USD','') detected. Use toSymbol() from
+lib/api/market-data.ts to avoid $0 price bugs from symbol
+format mismatches.
 
-🔴 BLOCKER app/api/fmp/market-leaders/route.ts:20
-Direct call to financialmodelingprep.com. Use fmpFetch() from
-lib/api/fmp.ts for centralized key management and rate limiting.
+🔴 BLOCKER app/api/market/leaders/route.ts:20
+Direct call to external market data API detected. Use apiFetch()
+from lib/api/market-data.ts for centralized key management and
+rate limiting.
 
 BLOCKERS: 2 — commit rejected.
 ```
@@ -53,7 +55,7 @@ pattern-match. That's the difference between a linter and an agent.
 Engine (this repo)     Rule Pack (per domain)
 ─────────────────      ──────────────────────
 cli.py                   rules/fintech.yaml  ← generic, open source
-engine/agent.py  ←────── .sentinel/pyramid.yaml  ← client config (not here)
+engine/agent.py  ←────── .sentinel/rules.yaml    ← your project config
 engine/tools.py
 engine/github_mcp.py
 engine/mcp_tools.py
@@ -69,14 +71,15 @@ Rule packs are **natural language**, not regex:
 - id: symbol-normalization
   severity: BLOCKER
   when: |
-    Any code path passes a symbol string to an FMP-bound API call
-    without going through toFmpSymbol() from lib/api/fmp.ts.
+    Any code path passes a symbol string to a market data API call
+    without going through the canonical toSymbol() helper.
     Manual string replacement (.replace('-USD',''), ${ticker}USD)
     is a strong signal.
   why: |
-    The USDE-shows-$0 incident: FMP returned USDE (no suffix), but
-    the page assumed {TICKER}USD format and looked up USDEUSD. One
-    missing normalization = $0 prices for every user of that coin.
+    Symbol format mismatches silently show $0 prices to users.
+    The data provider returns one format; the app assumes another.
+    One missing normalization call = broken prices for every user
+    of that asset.
 ```
 
 The LLM interprets the rule against the diff. No regex engine needed.
@@ -103,7 +106,7 @@ SCORE: 3/3
 | MCP integration    | `@modelcontextprotocol/server-github` |
 | Rule format        | Natural language YAML              |
 | CLI                | Python 3.10, Rich                  |
-| Cloud              | Google Cloud (Vertex AI, pyramid-investment) |
+| Cloud              | Google Cloud (Vertex AI)                    |
 
 ---
 

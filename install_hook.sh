@@ -8,7 +8,6 @@ if [ "${1:-}" = "" ]; then
 fi
 
 TARGET_REPO_INPUT="$1"
-# Preserve caller path verbatim — `pwd` strips trailing spaces from dirname ("Pyramid revised ").
 ABS_TARGET="$TARGET_REPO_INPUT"
 if [ ! -d "${ABS_TARGET}/.git" ]; then
   echo "Not a git repository: ${ABS_TARGET}" >&2
@@ -25,8 +24,8 @@ fi
   echo '#!/usr/bin/env bash'
   echo '# Sentinel pre-commit hook — auto-installed by install_hook.sh'
   echo 'set -e'
-  echo 'SENTINEL_DIR="/Users/mugesh/Project X/sentinel"'
-  printf 'RULES="%s/.sentinel/pyramid.yaml"\n' "${ABS_TARGET%/}"
+  printf 'SENTINEL_DIR="%s"\n' "$(cd "$(dirname "$0")" && pwd)"
+  printf 'RULES="%s/.sentinel/rules.yaml"\n' "${ABS_TARGET%/}"
   echo ''
   echo 'if [ ! -f "$RULES" ]; then'
   echo '  echo "Sentinel: no rules file at $RULES — skipping review."'

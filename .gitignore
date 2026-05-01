@@ -11,9 +11,14 @@ __pycache__/
 
 # Planning docs (internal only)
 SENTINEL_BUILD_PLAN.md
+CLAUDE.md
 
 # macOS
 .DS_Store
 
 # Eval temp outputs
 /tmp/
+
+# Demo video output (large binaries — not for git)
+demo/*.mp4
+demo/*.webm
