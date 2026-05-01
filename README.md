@@ -5,6 +5,8 @@
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-1.31.1-4285F4.svg)](https://google.github.io/adk-docs/)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini-2.5%20Flash-34A853.svg)](https://deepmind.google/technologies/gemini/)
 
+**[→ Get early access / leave feedback](https://mugeshgithub.github.io/sentinel)**
+
 **Domain-aware AI code reviewer. Open engine, vertical rule packs.**
 
 I pushed to production every day with no reviewer and no test suite. Last quarter that cost me — wrong prices, dead API links, missing filters. All shipped to real users.

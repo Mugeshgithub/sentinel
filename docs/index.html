@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sentinel — AI Code Reviewer</title>
+  <meta name="description" content="Domain-aware AI code reviewer. Catches bugs before they ship. Open engine, vertical rule packs." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    a { color: #58a6ff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ── */
+    nav {
+      border-bottom: 1px solid #21262d;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 18px;
+      font-weight: 800;
+      color: #e6edf3;
+      letter-spacing: -0.5px;
+    }
+    .nav-badge {
+      background: #1f6feb;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-left: 10px;
+    }
+    .nav-links { display: flex; gap: 24px; font-size: 14px; color: #8b949e; }
+    .nav-links a { color: #8b949e; }
+    .nav-links a:hover { color: #e6edf3; text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 32px 60px;
+      text-align: center;
+    }
+    .hero-pill {
+      display: inline-block;
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #58a6ff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .hero h1 span { color: #58a6ff; }
+    .hero p {
+      font-size: 18px;
+      color: #8b949e;
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+    .btn-primary { background: #1f6feb; color: #fff; border: none; }
+    .btn-secondary {
+      background: transparent;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+    }
+
+    /* ── Bugs strip ── */
+    .bugs {
+      background: #161b22;
+      border-top: 1px solid #21262d;
+      border-bottom: 1px solid #21262d;
+      padding: 40px 32px;
+    }
+    .bugs-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .bugs-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .bug-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bug-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 3px solid #f44747;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+    .bug-dot { color: #f44747; font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .bug-title { color: #e6edf3; font-weight: 600; }
+    .bug-desc { color: #8b949e; margin-left: 4px; }
+
+    /* ── How it works ── */
+    .how {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #58a6ff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .section-sub {
+      color: #8b949e;
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+    .terminal {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .terminal-bar {
+      background: #21262d;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dr { background: #ff5f57; } .dy { background: #febc2e; } .dg { background: #28c840; }
+    .terminal-title { font-size: 12px; color: #8b949e; margin-left: 6px; }
+    .terminal-body {
+      padding: 20px 24px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: #e6edf3;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .t-dim { color: #8b949e; }
+    .t-red { color: #f44747; font-weight: 700; }
+    .t-green { color: #28c840; }
+    .t-blue { color: #58a6ff; }
+
+    /* ── Score ── */
+    .score-strip {
+      background: #161b22;
+      border-top: 1px solid #21262d;
+      border-bottom: 1px solid #21262d;
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .score-big { font-size: 72px; font-weight: 800; color: #28c840; line-height: 1; }
+    .score-label { color: #8b949e; font-size: 16px; margin-top: 6px; }
+    .score-items {
+      max-width: 580px;
+      margin: 28px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      text-align: left;
+    }
+    .score-item {
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-left: 3px solid #28c840;
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #8b949e;
+    }
+
+    /* ── Stack ── */
+    .stack {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 64px 32px;
+    }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .pill {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .pill-blue { border-color: #1f6feb; color: #58a6ff; }
+
+    /* ── Form ── */
+    .form-section {
+      background: #161b22;
+      border-top: 1px solid #21262d;
+      padding: 64px 32px;
+    }
+    .form-inner { max-width: 560px; margin: 0 auto; }
+    .form-inner .section-title { text-align: center; }
+    .form-inner .section-sub { text-align: center; }
+
+    form { margin-top: 32px; display: flex; flex-direction: column; gap: 16px; }
+    label { font-size: 13px; font-weight: 600; color: #8b949e; margin-bottom: 4px; display: block; }
+    input, select, textarea {
+      width: 100%;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #e6edf3;
+      font-size: 14px;
+      padding: 10px 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #1f6feb; }
+    select option { background: #0d1117; }
+    textarea { resize: vertical; min-height: 90px; }
+    .form-submit {
+      background: #1f6feb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      margin-top: 4px;
+    }
+    .form-submit:hover { opacity: 0.85; }
+    .form-note { font-size: 12px; color: #8b949e; text-align: center; margin-top: 8px; }
+
+    /* Success state */
+    .form-success {
+      display: none;
+      text-align: center;
+      padding: 40px 0;
+    }
+    .form-success .check { font-size: 48px; margin-bottom: 16px; }
+    .form-success h3 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .form-success p { color: #8b949e; font-size: 15px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid #21262d;
+      padding: 24px 32px;
+      text-align: center;
+      font-size: 13px;
+      color: #8b949e;
+    }
+    footer a { color: #8b949e; }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 36px; }
+      .hero { padding: 48px 20px 40px; }
+      .terminal-body { font-size: 11px; }
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center">
+    <span class="nav-logo">Sentinel</span>
+    <span class="nav-badge">Beta</span>
+  </div>
+  <div class="nav-links">
+    <a href="https://github.com/Mugeshgithub/sentinel">GitHub</a>
+    <a href="https://github.com/Mugeshgithub/sentinel#install">Docs</a>
+    <a href="#early-access">Get access</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-pill">Google for Startups AI Agent Challenge</div>
+  <h1>Catch bugs before<br/><span>they ship.</span></h1>
+  <p>
+    Sentinel reviews your git diff against rules you write in plain English —
+    and blocks the commit before the bug reaches your users.
+  </p>
+  <div class="hero-cta">
+    <a href="#early-access" class="btn btn-primary">Get early access</a>
+    <a href="https://github.com/Mugeshgithub/sentinel" class="btn btn-secondary">
+      View on GitHub
+    </a>
+  </div>
+</section>
+
+<!-- Real bugs -->
+<section class="bugs">
+  <div class="bugs-inner">
+    <div class="bugs-label">Real production bugs this caught</div>
+    <div class="bug-list">
+      <div class="bug-item">
+        <span class="bug-dot">●</span>
+        <div><span class="bug-title">Dead API links</span><span class="bug-desc">— Backend removed, 10+ client references left. Every page showed $0.</span></div>
+      </div>
+      <div class="bug-item">
+        <span class="bug-dot">●</span>
+        <div><span class="bug-title">Symbol format mismatch</span><span class="bug-desc">— One missing helper call. Crypto prices broke for every user.</span></div>
+      </div>
+      <div class="bug-item">
+        <span class="bug-dot">●</span>
+        <div><span class="bug-title">Mismatched data sources</span><span class="bug-desc">— Tile and drawer fetched from different APIs. Same feature, different data.</span></div>
+      </div>
+      <div class="bug-item">
+        <span class="bug-dot">●</span>
+        <div><span class="bug-title">Missing filter param</span><span class="bug-desc">— Every stock showed the same research feed regardless of asset.</span></div>
+      </div>
+      <div class="bug-item">
+        <span class="bug-dot">●</span>
+        <div><span class="bug-title">Unfiltered movers</span><span class="bug-desc">— No marketCap filter. Page surfaced penny stocks instead of NVDA, AAPL, TSLA.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how">
+  <div class="section-label">How it works</div>
+  <div class="section-title">An agent, not a linter.</div>
+  <div class="section-sub">It reads the diff, picks tools, investigates, and reasons — before your commit lands.</div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+      <span class="terminal-title">git commit -m "fix movers sort"</span>
+    </div>
+    <div class="terminal-body"><span class="t-blue">Sentinel running...</span>
+<span class="t-dim">→ list_changed_files  ← TopMoversWidget.tsx</span>
+<span class="t-dim">→ get_diff            ← symbol.replace('-USD', '')</span>
+<span class="t-dim">→ search_codebase     ← toSymbol() found in lib/api/market-data.ts</span>
+
+<span class="t-red">🔴 BLOCKER</span> TopMoversWidget.tsx:52
+   Manual .replace('-USD','') detected.
+   Use toSymbol() to avoid $0 price bugs.
+
+<span class="t-red">BLOCKERS: 1 — commit rejected.</span></div>
+  </div>
+</section>
+
+<!-- Score -->
+<section class="score-strip">
+  <div class="score-big">3 / 3</div>
+  <div class="score-label">historical production bugs caught on eval</div>
+  <div class="score-items">
+    <div class="score-item">[PASS] penny-stocks-in-movers &nbsp;&nbsp;&nbsp;matched: unfiltered-market-data, manual-symbol-conversion</div>
+    <div class="score-item">[PASS] research-tile-global-feed matched: incomplete-api-params, tile-drawer-data-source</div>
+    <div class="score-item">[PASS] legacy-provider-dead-refs matched: dead-endpoint-references</div>
+  </div>
+</section>
+
+<!-- Stack -->
+<section class="stack">
+  <div class="section-label">Built on</div>
+  <div class="section-title">Open engine. Any domain.</div>
+  <div class="section-sub">
+    Write rules in plain English. Swap the YAML pack and you change the domain —
+    fintech, healthcare, e-commerce, whatever you ship.
+  </div>
+  <div class="pills">
+    <span class="pill pill-blue">Google ADK 1.31.1</span>
+    <span class="pill pill-blue">Gemini 2.5 Flash</span>
+    <span class="pill pill-blue">Vertex AI</span>
+    <span class="pill pill-blue">MCP</span>
+    <span class="pill">Fintech (demo pack)</span>
+    <span class="pill">Healthcare (coming)</span>
+    <span class="pill">E-commerce (coming)</span>
+  </div>
+</section>
+
+<!-- Form -->
+<section class="form-section" id="early-access">
+  <div class="form-inner">
+    <div class="section-label" style="text-align:center">Early access</div>
+    <div class="section-title">Be a design partner.</div>
+    <div class="section-sub">
+      I'm looking for 3–5 teams to use Sentinel on a real codebase.
+      You get hands-on setup help. I get honest feedback. No sales, no noise.
+    </div>
+
+    <form id="feedback-form" action="https://formspree.io/f/snazzy.mugi@gmail.com" method="POST">
+      <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your name" required />
+      </div>
+      <div>
+        <label for="company">Company / Project</label>
+        <input type="text" id="company" name="company" placeholder="What are you building?" required />
+      </div>
+      <div>
+        <label for="domain">Domain</label>
+        <select id="domain" name="domain" required>
+          <option value="" disabled selected>Select your domain</option>
+          <option>Fintech</option>
+          <option>Healthcare</option>
+          <option>E-commerce</option>
+          <option>Developer tooling</option>
+          <option>Government / RegTech</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label for="pain">Biggest code review pain point</label>
+        <textarea id="pain" name="pain" placeholder="What bugs keep slipping through? What do you wish your team caught earlier?" required></textarea>
+      </div>
+      <div>
+        <label for="linkedin">LinkedIn URL <span style="font-weight:400;color:#6e7681">(optional)</span></label>
+        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/..." />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="_replyto" placeholder="you@company.com" required />
+      </div>
+      <input type="hidden" name="_subject" value="Sentinel — New design partner request" />
+      <input type="hidden" name="_next" value="" />
+      <button type="submit" class="form-submit">Request early access →</button>
+      <p class="form-note">No spam. I'll reply personally within 24 hours.</p>
+    </form>
+
+    <div class="form-success" id="form-success">
+      <div class="check">✓</div>
+      <h3>You're on the list.</h3>
+      <p>I'll reach out within 24 hours to get you set up.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="margin-bottom:8px">
+    <a href="https://github.com/Mugeshgithub/sentinel">GitHub</a> &nbsp;·&nbsp;
+    <a href="https://www.linkedin.com/posts/mugesh-mdeveloper_googleforstartupsaiagentchallenge-buildinpublic-ugcPost-7456086587337175040-YYMJ">Demo</a> &nbsp;·&nbsp;
+    MIT License
+  </div>
+  <div>Built by <a href="https://linkedin.com/in/mugesh-mdeveloper">Mugesh</a> · Google for Startups AI Agent Challenge · EMEA</div>
+</footer>
+
+<script>
+  const form = document.getElementById('feedback-form');
+  const success = document.getElementById('form-success');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      form.style.display = 'none';
+      success.style.display = 'block';
+    } else {
+      alert('Something went wrong — please email snazzy.mugi@gmail.com directly.');
+    }
+  });
+</script>
+
+</body>
+</html>
