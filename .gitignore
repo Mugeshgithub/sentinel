@@ -22,4 +22,6 @@ CLAUDE.md
 # Demo video output (large binaries — not for git)
 demo/*.mp4
 demo/*.webm
-sentinel_ai.egg-info/
+*.egg-info/
+dist/
+build/
