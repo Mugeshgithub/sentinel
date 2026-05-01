@@ -15,7 +15,7 @@ Sentinel is what I built to fix that. It reviews your git diff against rules you
 
 ## Demo
 
-> [Watch the 2-minute demo](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+> [Watch the 2-minute demo](https://www.linkedin.com/posts/mugesh-mdeveloper_googleforstartupsaiagentchallenge-buildinpublic-ugcPost-7456086587337175040-YYMJ)
 
 ---
 
