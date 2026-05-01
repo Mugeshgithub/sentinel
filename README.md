@@ -128,7 +128,7 @@ SCORE: 3 / 3
 git clone https://github.com/Mugeshgithub/sentinel
 cd sentinel
 python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 
 export GEMINI_API_KEY="your_key"   # from aistudio.google.com
 export GITHUB_PAT="ghp_..."        # for --pr mode
@@ -138,37 +138,37 @@ export GITHUB_PAT="ghp_..."        # for --pr mode
 
 ## Usage
 
-**Review staged changes**
+**Three commands and you're protected.**
 
 ```bash
-python cli.py /path/to/your/repo --rules rules/fintech.yaml
+# 1. Create a rules file in your repo (choose fintech or healthcare)
+sentinel init /path/to/your/repo --domain fintech
+
+# 2. Install the pre-commit hook — runs automatically on every commit
+sentinel hook /path/to/your/repo
+
+# 3. Or run a manual review any time
+sentinel review /path/to/your/repo
 ```
+
+After `sentinel hook`, every `git commit` runs Sentinel automatically. BLOCKER findings reject the commit. Use `git commit --no-verify` to bypass.
 
 **Review a GitHub PR (posts inline comments)**
 
 ```bash
-python cli.py \
-  --pr https://github.com/your-org/your-repo/pull/42 \
-  --rules /path/to/your/repo/.sentinel/your-rules.yaml
+sentinel review --pr https://github.com/your-org/your-repo/pull/42 \
+                --rules /path/to/your/repo/.sentinel/rules.yaml
 ```
-
-**Install pre-commit hook (auto-runs on every commit)**
-
-```bash
-./install_hook.sh /path/to/your/repo
-```
-
-After install, every `git commit` runs Sentinel automatically. BLOCKER findings reject the commit. Use `--no-verify` to bypass.
 
 ---
 
 ## Write your own rule pack
 
-Create `.sentinel/rules.yaml` in your repo:
+`sentinel init` creates `.sentinel/rules.yaml` for you. Open it and add your rules:
 
 ```yaml
-extends: fintech          # optional: inherit generic rules
-domain: my-fintech-app
+extends: fintech          # inherit generic fintech rules (or: healthcare)
+domain: my-app
 
 rules:
   - id: my-custom-rule
@@ -177,22 +177,17 @@ rules:
       Describe when this rule fires in plain English.
       The LLM interprets this against the diff.
     unless: |
-      Describe when NOT to fire (optional).
+      Describe exceptions (optional).
     why: |
       Why this matters. Include a real past incident if you have one.
-```
-
-Then point Sentinel at it:
-
-```bash
-python cli.py /path/to/your/repo --rules /path/to/your/repo/.sentinel/rules.yaml
 ```
 
 ---
 
 ## Roadmap
 
-- [ ] Healthcare rule pack
+- [x] Fintech rule pack (`rules/fintech.yaml`)
+- [x] Healthcare rule pack (`rules/healthcare.yaml`)
 - [ ] E-commerce rule pack
 - [ ] Rule pack marketplace (Google Cloud Marketplace)
 - [ ] VS Code extension

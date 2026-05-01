@@ -1,0 +1,123 @@
+domain: healthcare
+description: Generic review rules for healthcare / healthtech SaaS products.
+
+rules:
+  - id: phi-in-logs
+    severity: BLOCKER
+    when: |
+      console.log / logger / print calls include patient names, dates of birth,
+      SSNs, MRNs, diagnoses, medication names, lab values, or any field that
+      could constitute Protected Health Information (PHI) under HIPAA.
+    why: |
+      Logs flow into third-party aggregators (Datadog, Sentry, CloudWatch).
+      A single PHI leak in logs = HIPAA breach, mandatory notification,
+      and up to $1.9M per violation category per year.
+
+  - id: missing-auth-on-patient-route
+    severity: BLOCKER
+    when: |
+      A new API route under /patient, /medical, /health, /record, /prescription,
+      /diagnosis, or /lab does not verify authentication (no JWT check, no session
+      validation, no middleware guard).
+    why: |
+      Unauthenticated patient data endpoints are the #1 source of healthcare
+      data breaches. Every patient data route must require a verified identity.
+
+  - id: missing-patient-scope
+    severity: BLOCKER
+    when: |
+      A database query or API call fetches patient records without filtering by
+      the requesting user's patient list or organisation ID — i.e. any query
+      that could return records belonging to other patients.
+    why: |
+      Cross-patient data leaks (showing patient A's records to patient B's
+      provider) are a HIPAA violation even if accidental. Every query must
+      be scoped to the authenticated user's access.
+
+  - id: unencrypted-phi-field
+    severity: BLOCKER
+    when: |
+      A database schema, ORM model, or migration adds a field for diagnosis,
+      medication, lab result, SSN, DOB, or medical notes without an encryption
+      annotation, encrypted column type, or comment indicating encryption is
+      handled at the infrastructure layer.
+    why: |
+      HIPAA requires PHI to be encrypted at rest. Unencrypted sensitive fields
+      in the DB = breach liability even if the server is never compromised.
+
+  - id: missing-audit-trail
+    severity: BLOCKER
+    when: |
+      Code reads or modifies patient records (create, update, delete, or
+      bulk export) without writing an audit log entry (who, what, when,
+      patient ID).
+    why: |
+      HIPAA requires a full audit trail of PHI access. Missing audit logs
+      make breach investigation impossible and are themselves a violation.
+
+  - id: hardcoded-patient-data
+    severity: BLOCKER
+    when: |
+      Source code or test fixtures contain realistic-looking patient names,
+      SSNs, DOBs, diagnoses, or MRNs (not obviously fake like "John Doe"
+      test data).
+    why: |
+      Real patient data committed to source control is an immediate breach.
+      Use synthetic generators (Faker, factories) for all test fixtures.
+
+  - id: bulk-export-without-auth
+    severity: RISKY
+    when: |
+      An endpoint or function returns a list or export of patient records
+      without checking that the caller has explicit bulk-access permission
+      (not just basic auth).
+    why: |
+      Bulk export of patient records is the highest-impact breach vector.
+      Read-one and read-many require separate, explicit permission checks.
+
+  - id: missing-medical-input-validation
+    severity: RISKY
+    when: |
+      Code accepts user-supplied dosage, age, lab value, or clinical measurement
+      without range validation (min/max) before storing or displaying it.
+    why: |
+      Out-of-range values (e.g. dosage 10x the safe limit) can cause clinical
+      harm if surfaced in a provider UI. Validate at the API boundary.
+
+  - id: http-for-medical-api
+    severity: RISKY
+    when: |
+      A hardcoded URL using http:// (not https://) is used for any external
+      medical data API, EHR integration, or lab result endpoint.
+    why: |
+      Plain HTTP transmits PHI in cleartext. HIPAA requires encryption in
+      transit. All external health data calls must use HTTPS.
+
+  - id: missing-rate-limit-on-auth
+    severity: RISKY
+    when: |
+      Authentication, password-reset, MFA, or prescription-submission endpoints
+      have no rate limiting, throttle, or lockout logic.
+    why: |
+      Healthcare portals are high-value credential-stuffing targets. Without
+      rate limits, attackers can brute-force patient account access at scale.
+
+  - id: phi-in-error-response
+    severity: RISKY
+    when: |
+      An error handler or catch block returns raw exception messages, stack
+      traces, or database errors to the client — any of which could include
+      patient identifiers or record contents.
+    why: |
+      Stack traces can leak patient IDs, query contents, or field values.
+      Return generic error codes to clients; log detail server-side only.
+
+  - id: missing-consent-check
+    severity: NIT
+    when: |
+      Code shares or forwards patient data to a third-party integration
+      (analytics, CRM, marketing) without a comment or check confirming
+      patient consent was captured for that specific use.
+    why: |
+      HIPAA and GDPR require explicit consent for secondary use of health data.
+      Data sharing without consent records is an audit risk.
