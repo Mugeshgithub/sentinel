@@ -7,8 +7,6 @@
 
 **Landing:** [mugeshgithub.github.io/sentinel](https://mugeshgithub.github.io/sentinel/) · **Feedback:** [open an issue](https://github.com/Mugeshgithub/sentinel/issues/new)
 
-If that URL shows **404**, enable GitHub Pages on this repo: **Settings → Pages → Build from branch `main`, folder `/docs`**, save, wait ~1–2 minutes.
-
 **Domain-aware AI code reviewer. Open engine, vertical rule packs.**
 
 I pushed to production every day with no reviewer and no test suite. Last quarter that cost me — wrong prices, dead API links, missing filters. All shipped to real users.
