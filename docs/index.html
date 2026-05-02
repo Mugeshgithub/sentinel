@@ -438,60 +438,20 @@
   </div>
 </section>
 
-<!-- Form -->
+<!-- Early access / feedback — GitHub Issues (no backend required) -->
 <section class="form-section" id="early-access">
   <div class="form-inner">
-    <div class="section-label" style="text-align:center">Early access</div>
-    <div class="section-title">Be a design partner.</div>
+    <div class="section-label" style="text-align:center">Early access & feedback</div>
+    <div class="section-title">Leave feedback or ask to try Sentinel.</div>
     <div class="section-sub">
-      I'm looking for 3–5 teams to use Sentinel on a real codebase.
-      You get hands-on setup help. I get honest feedback. No sales, no noise.
+      Opens a new GitHub issue with a short template — works as soon as this repo’s Pages setting is turned on (see README).
     </div>
-
-    <form id="feedback-form" action="https://formspree.io/f/snazzy.mugi@gmail.com" method="POST">
-      <div>
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" placeholder="Your name" required />
-      </div>
-      <div>
-        <label for="company">Company / Project</label>
-        <input type="text" id="company" name="company" placeholder="What are you building?" required />
-      </div>
-      <div>
-        <label for="domain">Domain</label>
-        <select id="domain" name="domain" required>
-          <option value="" disabled selected>Select your domain</option>
-          <option>Fintech</option>
-          <option>Healthcare</option>
-          <option>E-commerce</option>
-          <option>Developer tooling</option>
-          <option>Government / RegTech</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div>
-        <label for="pain">Biggest code review pain point</label>
-        <textarea id="pain" name="pain" placeholder="What bugs keep slipping through? What do you wish your team caught earlier?" required></textarea>
-      </div>
-      <div>
-        <label for="linkedin">LinkedIn URL <span style="font-weight:400;color:#6e7681">(optional)</span></label>
-        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/..." />
-      </div>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="_replyto" placeholder="you@company.com" required />
-      </div>
-      <input type="hidden" name="_subject" value="Sentinel — New design partner request" />
-      <input type="hidden" name="_next" value="" />
-      <button type="submit" class="form-submit">Request early access →</button>
-      <p class="form-note">No spam. I'll reply personally within 24 hours.</p>
-    </form>
-
-    <div class="form-success" id="form-success">
-      <div class="check">✓</div>
-      <h3>You're on the list.</h3>
-      <p>I'll reach out within 24 hours to get you set up.</p>
+    <div class="hero-cta" style="justify-content:center;margin-top:28px">
+      <a href="https://github.com/Mugeshgithub/sentinel/issues/new?title=Early%20access%20%2F%20feedback&body=**Project%20%2F%20company%3A**%0A%0A**Stack%20(e.g.%20Next.js%2C%20Python)%3A**%0A%0A**What%20should%20Sentinel%20catch%20for%20you%3F**%0A%0A**Anything%20else%3F**%0A"
+         class="btn btn-primary">Get early access / leave feedback →</a>
+      <a href="https://github.com/Mugeshgithub/sentinel" class="btn btn-secondary">Repository</a>
     </div>
+    <p class="form-note" style="margin-top:28px">Prefer another channel? Use any link in the footer.</p>
   </div>
 </section>
 
@@ -503,27 +463,6 @@
   </div>
   <div>Built by <a href="https://linkedin.com/in/mugesh-mdeveloper">Mugesh</a> · Google for Startups AI Agent Challenge · EMEA</div>
 </footer>
-
-<script>
-  const form = document.getElementById('feedback-form');
-  const success = document.getElementById('form-success');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = new FormData(form);
-    const res = await fetch(form.action, {
-      method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/json' }
-    });
-    if (res.ok) {
-      form.style.display = 'none';
-      success.style.display = 'block';
-    } else {
-      alert('Something went wrong — please email snazzy.mugi@gmail.com directly.');
-    }
-  });
-</script>
 
 </body>
 </html>

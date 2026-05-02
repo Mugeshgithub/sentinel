@@ -5,7 +5,9 @@
 [![Google ADK](https://img.shields.io/badge/Google%20ADK-1.31.1-4285F4.svg)](https://google.github.io/adk-docs/)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini-2.5%20Flash-34A853.svg)](https://deepmind.google/technologies/gemini/)
 
-**[→ Get early access / leave feedback](https://mugeshgithub.github.io/sentinel)**
+**Landing:** [mugeshgithub.github.io/sentinel](https://mugeshgithub.github.io/sentinel/) · **Feedback:** [open an issue](https://github.com/Mugeshgithub/sentinel/issues/new)
+
+If that URL shows **404**, enable GitHub Pages on this repo: **Settings → Pages → Build from branch `main`, folder `/docs`**, save, wait ~1–2 minutes.
 
 **Domain-aware AI code reviewer. Open engine, vertical rule packs.**
 
